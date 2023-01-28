@@ -29,25 +29,27 @@ async fn main() {
     let mut food_position = vec2(COLS as f32 / 2., ROWS as f32 / 2.).floor();
     let mut timer = 0.;
     let mut update_time = 0.;
-    const SPEED_TIME: f32 = 0.2;
+    const SPEED_TIME: f32 = 0.22;
+    const MIN_SPEED_TIME: f32 = 0.1;
     let mut speed_time = SPEED_TIME;
 
     while !is_key_pressed(KeyCode::Escape) {
         if !out {
             timer += get_frame_time();
 
-            if is_key_pressed(KeyCode::Up) {
+            if is_key_pressed(KeyCode::Up) || is_key_pressed(KeyCode::W) {
                 snake.move_(Direction::Up)
-            } else if is_key_pressed(KeyCode::Down) {
+            } else if is_key_pressed(KeyCode::Down) || is_key_pressed(KeyCode::S) {
                 snake.move_(Direction::Down)
-            } else if is_key_pressed(KeyCode::Left) {
+            } else if is_key_pressed(KeyCode::Left) || is_key_pressed(KeyCode::A) {
                 snake.move_(Direction::Left)
-            } else if is_key_pressed(KeyCode::Right) {
+            } else if is_key_pressed(KeyCode::Right) || is_key_pressed(KeyCode::D) {
                 snake.move_(Direction::Right)
             }
 
             if timer > update_time {
                 update_time += speed_time;
+                speed_time = speed_time.clamp(MIN_SPEED_TIME, SPEED_TIME);
 
                 let random_position = || {
                     vec2(
@@ -117,7 +119,7 @@ async fn main() {
             snake.draw();
         } else {
             // out
-            const SCORE_FONT_SIZE: u16 = 35;
+            const SCORE_FONT_SIZE: u16 = 40;
             let score_str = &format!("SCORE : {}", score);
             let score_measure = measure_text(score_str, None, FONT_SIZE, 1.);
             draw_text(
@@ -128,7 +130,7 @@ async fn main() {
                 RED,
             );
 
-            const FONT_SIZE: u16 = 20;
+            const FONT_SIZE: u16 = 26;
             let restart_str = "Press Enter to Restart.";
             let restart_measure = measure_text(restart_str, None, FONT_SIZE, 1.);
             draw_text(
