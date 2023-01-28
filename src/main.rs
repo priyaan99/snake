@@ -1,6 +1,9 @@
 use std::collections::LinkedList;
 
-use macroquad::prelude::*;
+use macroquad::{
+    audio::{self, play_sound_once},
+    prelude::*,
+};
 
 const SIZE: usize = 25;
 const COLS: usize = 15;
@@ -33,6 +36,9 @@ async fn main() {
     const MIN_SPEED_TIME: f32 = 0.1;
     let mut speed_time = SPEED_TIME;
 
+    let enter_sound = audio::load_sound("assets/drop_004.ogg").await.unwrap();
+    let eating_sound = audio::load_sound("assets/maximize_008.ogg").await.unwrap();
+
     while !is_key_pressed(KeyCode::Escape) {
         if !out {
             timer += get_frame_time();
@@ -61,8 +67,9 @@ async fn main() {
 
                 // snake vs food
                 if snake.head == food_position {
+                    play_sound_once(eating_sound);
                     score += 1;
-                    speed_time -= 0.005;
+                    speed_time -= 0.01;
                     snake.increase_len();
 
                     while snake.contains_position(food_position) {
@@ -74,6 +81,7 @@ async fn main() {
 
                 if snake.off_field(ROWS, COLS) || snake.collided_itself() {
                     out = true;
+                    play_sound_once(enter_sound);
                 }
             }
         } else {
@@ -86,6 +94,7 @@ async fn main() {
                 timer = 0.;
                 update_time = 0.;
                 speed_time = SPEED_TIME;
+                play_sound_once(enter_sound);
             }
         }
 
